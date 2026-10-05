@@ -2,9 +2,11 @@
 
 > **A Java machine learning project that implements a Gaussian Naive Bayes classifier to predict whether a player is likely to recommend a Steam game based on playtime, price, and platform information.**
 
-This project was developed to learn the fundamentals of **machine learning and object-oriented programming in Java**.
+This project was developed as a self-learning project to understand the fundamentals of **machine learning and object-oriented programming in Java**.
 
 Rather than relying on an external machine learning library, the classifier logic is implemented directly in Java. The project reads Steam review data from CSV files, calculates the statistics required by a Gaussian Naive Bayes model, validates and tests the classifier, and provides a simple Swing interface for making new predictions.
+
+The goal was not to build a production-ready recommendation system, but to understand how a machine learning classifier works internally by implementing the probability calculations, data processing, validation, and prediction logic myself.
 
 ## Project Goal
 
@@ -22,6 +24,7 @@ The project was also used as an introduction to:
 - Training, validation, and testing datasets
 - Probability-based classification
 - Gaussian distributions
+- Data preprocessing
 - Java collections
 - Object-oriented design
 - Desktop GUI development with Swing
@@ -76,6 +79,109 @@ or:
 Not Recommended
 ```
 
+### Understanding Gaussian Naive Bayes
+
+As this was my first machine learning project, part of the development process involved learning how Gaussian Naive Bayes actually works rather than simply calling an existing machine learning library.
+
+Naive Bayes is based on **Bayes' theorem**, which allows the probability of a class to be estimated using prior knowledge and the probability of observing particular features within that class.
+
+For this project, the two possible classes are:
+
+```text
+Recommended
+Not Recommended
+```
+
+The model then attempts to determine which class is more likely based on the characteristics of a particular Steam review.
+
+The project uses both **continuous** and **categorical** features.
+
+Continuous features include:
+
+- Hours played
+- Hours-to-price relationship
+
+Categorical features include:
+
+- Windows support
+- macOS support
+- Linux support
+
+Gaussian Naive Bayes assumes that continuous values associated with each class can approximately follow a **Gaussian / normal distribution**.
+
+A normal distribution places most values around the centre, with progressively fewer values appearing further away from the mean.
+
+Real-world datasets do not always naturally follow this pattern.
+
+For example, playtime data can be strongly skewed because many users may have relatively low playtime while a much smaller number of players have hundreds or thousands of hours.
+
+The following image helped illustrate the difference between normal and skewed distributions while developing the project:
+
+![Normal and non-normal distributions](https://github.com/cian-collage/oop-machine-learning/assets/124142292/e4a91710-aaa4-48ec-8a5b-eca369a4c759)
+
+Because some of the continuous values in the dataset were heavily skewed, logarithmic transformations were used where required to reduce that skew and make the data more appropriate for the assumptions used by the Gaussian model.
+
+This was one of the more important parts of the project from a learning perspective, as it demonstrated that selecting a machine learning algorithm is not enough on its own — the characteristics and distribution of the input data also matter.
+
+### Gaussian Probability Density Function
+
+For continuous features, the classifier uses the Gaussian probability density function to estimate how likely an observed value is for a particular class.
+
+The probability density function is:
+
+![Gaussian probability density function](https://github.com/cian-collage/oop-machine-learning/assets/124142292/73dcfc4f-40a2-45bf-8201-9ee2421c4f03)
+
+Where:
+
+- **p(x = v | Cₖ)** is the probability density of observing the value `v` given class `Cₖ`
+- **μₖ** is the mean of the values associated with class `Cₖ`
+- **σ²ₖ** is the variance of the values associated with class `Cₖ`
+- **v** is the value being evaluated
+
+For example, the classifier can calculate the likelihood of a particular number of hours played appearing in:
+
+```text
+Recommended Reviews
+```
+
+and compare it with the likelihood of that same value appearing in:
+
+```text
+Not Recommended Reviews
+```
+
+The same process is performed for the other continuous values used by the model.
+
+The categorical platform values are handled using the percentage of reviews in each class associated with Windows, macOS, or Linux.
+
+The resulting feature likelihoods are combined with the prior probability of each class.
+
+Conceptually:
+
+```text
+Prior Probability
+        ×
+Feature Likelihoods
+        ↓
+Posterior Probability
+```
+
+The classifier calculates this separately for:
+
+```text
+Recommended
+```
+
+and:
+
+```text
+Not Recommended
+```
+
+The class with the higher resulting probability is selected as the model's prediction.
+
+Implementing this process manually was one of the main goals of the project, as it allowed me to understand what a classifier was actually doing rather than treating machine learning as a black-box library call.
+
 ---
 
 ## Dataset
@@ -91,6 +197,14 @@ The original dataset was divided into three sections:
 | Testing | 20% | Measure the performance of the completed classifier |
 
 The data was preprocessed before use to remove irrelevant information and convert values into a form suitable for the classifier.
+
+The separation between training, validation, and testing data was also an important part of the learning process for this project.
+
+The **training data** is used to calculate the statistics that the classifier relies on.
+
+The **validation data** is used during development to check how well the current version of the model is performing and to help identify problems with the implementation.
+
+The **testing data** is kept separate so that the completed model can be evaluated against data that was not used to calculate its training statistics.
 
 Because the dataset files are too large to store directly in the GitHub repository, they are available separately:
 
@@ -121,11 +235,15 @@ Recommended / Not Recommended
 
 Continuous values are transformed where required to reduce skew and better fit the assumptions of the Gaussian model.
 
+Each row of the dataset is converted into an `Instance` object so that all of the information associated with a single review can be passed between the training, validation, testing, and prediction parts of the application.
+
 ---
 
 ## Validation and Testing
 
 The project separates model development from final testing.
+
+Understanding the distinction between **training, validation, and testing** was one of the main machine learning concepts I wanted to learn through this project.
 
 ### Validation
 
@@ -139,11 +257,23 @@ Actual Recommendation
 
 The result is reported as an accuracy percentage.
 
+For each review in the validation dataset:
+
+1. The review is passed into the classifier
+2. A prediction is generated
+3. The prediction is compared with the real recommendation value
+4. Correct predictions are counted
+5. The final accuracy percentage is calculated
+
+This allowed me to evaluate the model while developing the classifier and identify when changes to the probability calculations improved or reduced its performance.
+
 ### Testing
 
 `Tester.java` performs the same comparison using the separate testing dataset.
 
 This allows the final classifier to be evaluated against data that was not used to calculate the training statistics.
+
+The testing dataset is therefore used as the final evaluation of the model after the implementation has been completed.
 
 ---
 
@@ -163,6 +293,10 @@ The prediction interface allows a user to enter:
 
 The application converts the input into an `Instance`, passes it through the classifier, and displays the resulting recommendation prediction.
 
+This allows the model to be used interactively rather than only being tested against existing CSV data.
+
+A user can enter information representing a hypothetical Steam review and receive a prediction of whether a similar review would be expected to recommend the game.
+
 ### Statistics Display
 
 A second window displays statistics calculated from the training data, including:
@@ -173,6 +307,8 @@ A second window displays statistics calculated from the training data, including
 - Average hours played
 - Average price per hour
 - Platform distribution for each class
+
+The statistics window was added so that some of the values being calculated internally by the model could also be viewed by the user.
 
 ---
 
@@ -228,6 +364,8 @@ Responsibilities include:
 - Running final testing
 - Launching the Swing interfaces
 
+`Main.java` acts as the controller connecting the data-loading, machine-learning, testing, and user-interface sections of the project.
+
 ### `Stats.java`
 
 Contains the core machine learning implementation.
@@ -240,17 +378,48 @@ It:
 - Combines likelihoods with class probabilities
 - Predicts whether a review is recommended
 
+The class stores its calculated information using HashMaps for statistics and probabilities.
+
+Values calculated include:
+
+- Total number of reviews
+- Recommended and not recommended counts
+- Class probabilities
+- Mean values
+- Standard deviations
+- Platform percentages
+- Log-transformed continuous statistics
+
+These values are then used by the prediction methods to calculate the likelihood of a new review belonging to either recommendation class.
+
 ### `Instance.java`
 
 Represents an individual game review and stores the features used by the classifier.
+
+The purpose of creating a dedicated `Instance` class was to make it easier to keep all information belonging to an individual review together rather than passing separate values throughout the program.
+
+Each instance contains:
+
+- Hours played
+- Hours-to-price ratio
+- Windows support
+- macOS support
+- Linux support
+- Actual recommendation value
 
 ### `Validation.java`
 
 Measures prediction accuracy using the validation dataset.
 
+Each review is passed through the classifier and the prediction is compared against the known result.
+
+The number of correct predictions is used to calculate validation accuracy.
+
 ### `Tester.java`
 
 Measures final prediction accuracy using the testing dataset.
+
+It performs a similar process to `Validation.java`, but uses the dedicated testing dataset to evaluate the completed model.
 
 ### `GUI.java`
 
@@ -259,6 +428,8 @@ Contains the Java Swing user interface for:
 - Entering new game information
 - Displaying recommendation predictions
 - Viewing statistics calculated from the training data
+
+The GUI provides a simple way of interacting with the completed classifier without needing to manually create new Java objects or edit CSV files.
 
 ---
 
@@ -274,6 +445,8 @@ Contains the Java Swing user interface for:
 | Dataset | Steam game reviews |
 
 No external machine learning framework is required for the classifier itself.
+
+This was intentional, as the project was primarily focused on learning how the statistical calculations behind a classifier work rather than learning the API of an existing machine learning framework.
 
 ---
 
@@ -327,6 +500,56 @@ For this project, I implemented the:
 
 The project was my introduction to machine learning and gave me practical experience implementing a classifier from the underlying probability and statistical concepts rather than treating the model as a black-box library call.
 
+The project also helped connect several different areas of programming together:
+
+```text
+CSV Dataset
+     ↓
+Data Processing
+     ↓
+Java Objects
+     ↓
+Statistical Analysis
+     ↓
+Machine Learning Classification
+     ↓
+Validation and Testing
+     ↓
+Desktop Interface
+```
+
+---
+
+## What I Learned
+
+Because this project was built primarily as a self-learning exercise, the process of understanding the model was just as important as the final prediction accuracy.
+
+Before beginning the project, I had very little experience with machine learning.
+
+Through implementing the classifier, I gained a much better understanding of:
+
+- The difference between training, validation, and testing data
+- Why evaluation data should be kept separate from training data
+- How probability-based classifiers make decisions
+- How prior probabilities influence classification
+- How continuous features can be modelled using Gaussian distributions
+- How mean, variance, and standard deviation are used by a classifier
+- Why the distribution of input data matters
+- Why transformations may be required for heavily skewed data
+- How multiple feature likelihoods can be combined to produce a final prediction
+- How model accuracy can be calculated by comparing predictions with known outcomes
+
+I also improved my understanding of Java and object-oriented programming through:
+
+- Splitting responsibilities across multiple classes
+- Using objects to represent rows of data
+- Reading and processing CSV files
+- Using Lists and HashMaps
+- Building a Swing interface
+- Separating data processing, model logic, testing, and presentation
+
+One of the biggest lessons from the project was that using machine learning successfully requires understanding the data as well as understanding the algorithm.
+
 ---
 
 ## Limitations
@@ -339,5 +562,18 @@ This was an introductory machine learning project and has several limitations.
 - Evaluation is based primarily on prediction accuracy
 - The Swing interface is intentionally simple
 - The project does not use a dedicated ML framework or production data pipeline
+- The classifier was built primarily for learning rather than maximising real-world predictive performance
 
 These limitations reflect the project's primary goal: understanding the mechanics of a machine learning classifier and implementing those mechanics directly in Java.
+
+---
+
+## Resources
+
+Resources used while learning about Gaussian Naive Bayes, probability, and data distributions included:
+
+- [Normal and Non-Normal Distributions](https://www.slideshare.net/plummer48/normal-and-non-normal-distributions) — reference used while learning about normal and skewed distributions
+- [Naive Bayes Classifier - Wikipedia](https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Gaussian_naive_Bayes) — reference material for Gaussian Naive Bayes
+- [Gaussian Naive Bayes, Clearly Explained - StatQuest](https://www.youtube.com/watch?v=H3EjCKtlVog) — explanation of Gaussian Naive Bayes and its probability calculations
+- [Gaussian Naive Bayes Algorithm - Intellipaat](https://www.youtube.com/watch?v=u5jRUg10bpw) — additional introduction to the algorithm
+- [Kaggle Datasets](https://www.kaggle.com/datasets?search=Game) — source used while exploring datasets for the project
