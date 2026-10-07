@@ -190,11 +190,12 @@ The project uses a dataset of **Steam game reviews**.
 
 The original dataset was divided into three sections:
 
-| Dataset | Split | Purpose |
-|---|---:|---|
-| Training | 60% | Calculate model statistics and train the classifier |
-| Validation | 20% | Evaluate and refine the model during development |
-| Testing | 20% | Measure the performance of the completed classifier |
+| Dataset    |          Rows | Purpose                                             |
+| ---------- | ------------: | --------------------------------------------------- |
+| Training   |     1,000,000 | Calculate model statistics and train the classifier |
+| Validation |       126,346 | Evaluate and refine the model during development    |
+| Testing    |       589,329 | Measure the performance of the completed classifier |
+| **Total**  | **1,715,675** |                                                     |
 
 The data was preprocessed before use to remove irrelevant information and convert values into a form suitable for the classifier.
 
@@ -274,6 +275,70 @@ This allowed me to evaluate the model while developing the classifier and identi
 This allows the final classifier to be evaluated against data that was not used to calculate the training statistics.
 
 The testing dataset is therefore used as the final evaluation of the model after the implementation has been completed.
+
+---
+
+## Model Behaviour and Conclusions
+
+After completing the classifier, I also examined how the trained model responded when its input features were varied systematically.
+
+This was not intended as a separate data-analysis project. The purpose was to test whether the predictor behaved consistently with the relationships it had learned from the training data and to better understand how the features influenced its output.
+
+For the browser portfolio recreation, the model was evaluated across **3,080 controlled input combinations**, using 55 playtime values, seven prices, and all eight Windows / macOS / Linux platform combinations.
+
+### Playtime
+
+**Hours played had the largest effect on the model output among the tested inputs.**
+
+With price fixed at **€20** and Windows selected, the relative recommendation score increased from approximately **3.65% at 1 hour** to a peak of approximately **94.67% at 250 hours**.
+
+At extremely high playtime values the score decreased again, reaching approximately **68.03% at 5,000 hours**.
+
+This supports the behaviour expected from the predictor: greater engagement is generally more consistent with a recommended review, but the classifier does not simply treat additional playtime as indefinitely more positive.
+
+### Price
+
+**Price influenced the prediction, but less strongly than playtime.**
+
+At **50 hours played** with Windows selected, the relative recommendation score ranged from approximately **93.29% at €5** to approximately **85.11% at €100**.
+
+The relationship was not perfectly linear. At **€0.99**, the same input produced approximately **91.72%**, so the predictor does not simply favour the lowest possible price.
+
+Instead, price contributes alongside playtime through the model's hours-to-price relationship.
+
+### Platform Support
+
+**Platform support had a smaller effect on the model output.**
+
+At **50 hours played and €20**, the relative recommendation score increased from approximately **91.93% with Windows only** to approximately **94.75% with Windows, macOS, and Linux support**.
+
+However, every training record includes Windows support. Platform combinations without Windows are therefore not meaningfully represented by the training data and should not be interpreted as reliable real-world predictions.
+
+### Hours Relative to Price
+
+Analysis of the training data also suggested that **hours played relative to price** was associated with recommendation behaviour.
+
+Recommendation rates generally increased as hours per euro increased before beginning to level off.
+
+This supports the use of the hours-to-price feature within the classifier: greater engagement relative to cost was generally more consistent with patterns found among recommended reviews.
+
+This is an observed association in the dataset rather than evidence that increasing playtime or reducing price would cause somebody to recommend a game.
+
+### Overall Interpretation
+
+The model sweep broadly supported the behaviour expected from the features used by the classifier:
+
+- **Playtime had the strongest influence on the model output**
+- **Price affected the prediction, but less strongly than playtime**
+- **Hours played relative to price helped represent the relationship between engagement and cost**
+- **Additional platform support produced a smaller positive effect**
+- **The classifier responded to combinations of features rather than relying on one simple rule**
+
+These results reinforced one of the main lessons of the project: evaluating a machine-learning classifier involves more than looking at a single accuracy figure. Inspecting how its predictions change across controlled inputs helps show what the model has actually learned and where limitations in the training data affect its behaviour.
+
+The values discussed above are **relative model scores rather than calibrated probabilities**. They are useful for comparing how the classifier responds to different inputs, but should not be interpreted as literal probabilities that an individual player will recommend a game.
+
+The relationships observed in the model and dataset represent **association rather than causation**.
 
 ---
 
@@ -435,14 +500,14 @@ The GUI provides a simple way of interacting with the completed classifier witho
 
 ## Technologies
 
-| Area | Technology |
-|---|---|
-| Language | Java |
+| Area             | Technology                                 |
+| ---------------- | ------------------------------------------ |
+| Language         | Java                                       |
 | Machine Learning | Custom Gaussian Naive Bayes implementation |
-| User Interface | Java Swing |
-| Data Format | CSV |
-| Data Structures | Lists and HashMaps |
-| Dataset | Steam game reviews |
+| User Interface   | Java Swing                                 |
+| Data Format      | CSV                                        |
+| Data Structures  | Lists and HashMaps                         |
+| Dataset          | Steam game reviews                         |
 
 No external machine learning framework is required for the classifier itself.
 
@@ -548,7 +613,7 @@ I also improved my understanding of Java and object-oriented programming through
 - Building a Swing interface
 - Separating data processing, model logic, testing, and presentation
 
-One of the biggest lessons from the project was that using machine learning successfully requires understanding the data as well as understanding the algorithm.
+Revisiting the completed model also reinforced the importance of inspecting a classifier's behaviour rather than relying only on a single accuracy figure. Testing the predictor across controlled combinations of inputs made it possible to see which features had the greatest influence on its output, whether those effects were consistent with the training data, and where limitations in the dataset restricted what the model could meaningfully predict.
 
 ---
 
@@ -563,6 +628,9 @@ This was an introductory machine learning project and has several limitations.
 - The Swing interface is intentionally simple
 - The project does not use a dedicated ML framework or production data pipeline
 - The classifier was built primarily for learning rather than maximising real-world predictive performance
+- All records in the training dataset include Windows support, so predictions for non-Windows platform combinations are not well supported by the training data
+- The relative model scores produced by the interactive predictor should not be interpreted as calibrated probabilities
+- Relationships identified in the dataset and model behaviour represent associations rather than causal effects
 
 These limitations reflect the project's primary goal: understanding the mechanics of a machine learning classifier and implementing those mechanics directly in Java.
 

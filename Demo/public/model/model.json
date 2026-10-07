@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "model": "Gaussian Naive Bayes",
+    "source": "Original Java project training data",
+    "trainingRows": 1000000,
+    "featureSpace": "Consistent log-hours and log-hours-to-price"
+  },
+  "probabilities": {
+    "recommended": 0.872765,
+    "notRecommended": 0.127235
+  },
+  "statistics": {
+    "totalReviews": 1000000,
+    "recommendedCount": 872765,
+    "notRecommendedCount": 127235,
+    "percentRecommended": 87.2765,
+    "percentNotRecommended": 12.723499999999998,
+    "meanLogHoursRecommended": 4.484289473961258,
+    "meanLogHoursNotRecommended": 3.6101228088300705,
+    "stdDevLogHoursRecommended": 1.4470657542915297,
+    "stdDevLogHoursNotRecommended": 2.0452519435105163,
+    "meanLogHoursToPriceRecommended": 1.2599891249137793,
+    "meanLogHoursToPriceNotRecommended": 0.24114418158270767,
+    "stdDevLogHoursToPriceRecommended": 1.588801571748764,
+    "stdDevLogHoursToPriceNotRecommended": 2.199577899226377,
+    "meanHoursToPriceRecommended": 3.5253831483112137,
+    "meanHoursToPriceNotRecommended": 1.2727045226325573,
+    "meanHoursRecommended": 88.61396590922865,
+    "meanHoursNotRecommended": 36.970592851293596,
+    "percentWindowsRecommended": 100,
+    "percentMacRecommended": 40.85922327316059,
+    "percentLinuxRecommended": 22.455758422943177,
+    "percentWindowsNotRecommended": 100,
+    "percentMacNotRecommended": 37.22246237277479,
+    "percentLinuxNotRecommended": 17.56513537941604
+  }
+}

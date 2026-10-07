@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.csv
+Training.csv
+Validation.csv
+Testing.csv
+*.tsbuildinfo

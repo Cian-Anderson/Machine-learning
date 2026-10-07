@@ -1,0 +1,26 @@
+{
+  "validation": {
+    "correctedModel": {
+      "rows": 126346,
+      "correct": 109314,
+      "accuracy": 86.51955740585376
+    },
+    "originalJavaBehavior": {
+      "rows": 126346,
+      "correct": 110491,
+      "accuracy": 87.45112627229987
+    }
+  },
+  "testing": {
+    "correctedModel": {
+      "rows": 589329,
+      "correct": 510226,
+      "accuracy": 86.57744655362285
+    },
+    "originalJavaBehavior": {
+      "rows": 589329,
+      "correct": 514500,
+      "accuracy": 87.30267813055187
+    }
+  }
+}
